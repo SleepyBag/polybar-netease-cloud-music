@@ -1,0 +1,14 @@
+#!/bin/zsh
+
+info=
+echo $info
+while read foo
+do
+  st=`cat ipc`
+  if [[ $st = playing ]] {
+    info=
+  } elif [[ $st = paused ]] {
+    info=
+  }
+  echo $info
+done
