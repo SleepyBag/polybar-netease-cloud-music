@@ -6,6 +6,11 @@ import dbus.service
 import dbus.glib
 from gi.repository import GObject
 import dbus
+import os
+
+mydir = os.path.dirname(__file__)
+print(mydir)
+os.chdir(mydir) # change the current working directory
 
 status = "paused"
 
