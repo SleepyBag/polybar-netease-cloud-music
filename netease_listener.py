@@ -10,7 +10,8 @@ import os
 
 mydir = os.path.dirname(__file__)
 print(mydir)
-os.chdir(mydir) # change the current working directory
+if mydir != '':
+    os.chdir(mydir) # change the current working directory
 
 status = "paused"
 
@@ -67,19 +68,15 @@ def event_handler(*args, **kwargs):
     if 'PlaybackStatus' in data[1]:
         if data[1]['PlaybackStatus'] == "Playing":
             print("Music is playing")
-            """ Send IPC hook 2 to the bottom bar pid for module playpause """
             status = "playing"
-            #  with open("ipc", "w") as text_file:
-            #      print("playing", file=text_file)
         if data[1]['PlaybackStatus'] == "Paused":
             print("Music is paused")
             status = "paused"
-            """ Send IPC hook 3 to the bottom bar pid for module playpause """
-            #  with open("ipc", "w") as text_file:
-            #      print("paused", file=text_file)
-    """ Send IPC hook 2 to the bottom bar pid for module spotify """
-    with open("ipc", "w") as text_file:
-        print(status, file=text_file)
+    with open("ipc", "r") as text_file:
+        file_status = text_file.readline()
+    if file_status != status:
+        with open("ipc", "w") as text_file:
+            print(status, file=text_file)
 
 def unwrap(val):
     if isinstance(val, dbus.ByteArray):
