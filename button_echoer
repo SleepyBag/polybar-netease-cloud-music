@@ -4,7 +4,6 @@ info=
 echo $info
 while read foo
 do
-  echo foo
   st=`cat ipc`
   if [[ $st = playing ]] {
     info=

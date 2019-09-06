@@ -24,7 +24,7 @@ first = True
 while first or input():
     first = False
     # Default parameters
-    output = '{artist}: {song}'
+    output = '{artist} : {song}'
     trunclen = 25
 
     # parameters can be overwritten by args
@@ -48,6 +48,12 @@ while first or input():
         metadata = spotify_properties.Get('org.mpris.MediaPlayer2.Player', 'Metadata')
 
         artist = metadata['xesam:artist'][0]
+        if len(artist) > trunclen:
+            artist = artist[0:trunclen]
+            artist += '...' 
+            if ('(' in artist) and (')' not in artist):
+                artist += ')'
+        
         song = metadata['xesam:title']
 
         if len(song) > trunclen:
@@ -58,9 +64,9 @@ while first or input():
         
         # Python3 uses UTF-8 by default. 
         if sys.version_info.major == 3:
-            print(' ' + output.format(artist=artist, song=song))
+            print('%{u#EA2202}%{F#EA2202} %{F-}' + output.format(artist=artist, song=song))
         else:
-            print(' ' + output.format(artist=artist, song=song).encode('UTF-8'))
+            print('%{u#EA2202}%{F#EA2202} %{F-}' + output.format(artist=artist, song=song).encode('UTF-8'))
     except Exception as e:
         if isinstance(e, dbus.exceptions.DBusException):
             print('')
