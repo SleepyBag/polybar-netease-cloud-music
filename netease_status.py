@@ -25,7 +25,7 @@ while first or input():
     first = False
     # Default parameters
     output = '{artist} : {song}'
-    trunclen = 25
+    trunclen = 15
 
     # parameters can be overwritten by args
     if args.trunclen is not None:
@@ -64,9 +64,9 @@ while first or input():
         
         # Python3 uses UTF-8 by default. 
         if sys.version_info.major == 3:
-            print('%{u#EA2202}%{F#EA2202} %{F-}' + output.format(artist=artist, song=song))
+            print('%{o#EA2202}%{+o}%{F#EA2202} %{F-}' + output.format(artist=artist, song=song) + '%{o-}')
         else:
-            print('%{u#EA2202}%{F#EA2202} %{F-}' + output.format(artist=artist, song=song).encode('UTF-8'))
+            print('%{o#EA2202}%{+o}%{F#EA2202} %{F-}' + output.format(artist=artist, song=song).encode('UTF-8') + '%{o-}')
     except Exception as e:
         if isinstance(e, dbus.exceptions.DBusException):
             print('')
