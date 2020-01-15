@@ -1,2 +1,0 @@
-cd $(dirname $0)
-inotifywait -qm --event modify --format '%w' ./ipc | /usr/bin/python3 netease_status.py

@@ -1,2 +1,0 @@
-cd $(dirname $0)
-inotifywait -qm --event modify --format '%w' ./ipc | ./button_echoer
