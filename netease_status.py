@@ -29,65 +29,71 @@ if args.trunclen is not None:
 if args.custom_format is not None:
     output = args.custom_format
 
-try:
-    session_bus = dbus.SessionBus()
-    cloud_music_bus = session_bus.get_object(
-        'org.mpris.MediaPlayer2.netease-cloud-music',
-        '/org/mpris/MediaPlayer2'
-    )
+while True:
+    try:
+        session_bus = dbus.SessionBus()
+        cloud_music_bus = session_bus.get_object(
+            'org.mpris.MediaPlayer2.netease-cloud-music',
+            '/org/mpris/MediaPlayer2'
+        )
 
-    cloud_music_properties = dbus.Interface(
-        cloud_music_bus,
-        'org.freedesktop.DBus.Properties'
-    )
+        cloud_music_properties = dbus.Interface(
+            cloud_music_bus,
+            'org.freedesktop.DBus.Properties'
+        )
 
-    metadata = cloud_music_properties.Get('org.mpris.MediaPlayer2.Player', 'Metadata')
+        metadata = cloud_music_properties.Get('org.mpris.MediaPlayer2.Player', 'Metadata')
 
-    playback_status = str(cloud_music_properties.Get('org.mpris.MediaPlayer2.Player', 'PlaybackStatus'))
-    if 'mpris:length' in metadata:
-        length = float(metadata['mpris:length'])
-        position = float(cloud_music_properties.Get('org.mpris.MediaPlayer2.Player', 'Position'))
-    else:
-        length = 1.
-        position = 0.
-    percent = position / length
+        playback_status = str(cloud_music_properties.Get('org.mpris.MediaPlayer2.Player', 'PlaybackStatus'))
+        #  volume = float(cloud_music_properties.Get('org.mpris.MediaPlayer2.Player', 'Volume'))
+        if 'mpris:length' in metadata:
+            length = float(metadata['mpris:length'])
+            position = float(cloud_music_properties.Get('org.mpris.MediaPlayer2.Player', 'Position'))
+        else:
+            length = 1.
+            position = 0.
+        percent = position / length
 
-    artist = metadata['xesam:artist'][0]
-    if len(artist) > trunclen:
-        artist = artist[0:trunclen]
-        artist += '...' 
-        if ('(' in artist) and (')' not in artist):
-            artist += ')'
-    
-    song = metadata['xesam:title']
+        artist = metadata['xesam:artist'][0]
+        if len(artist) > trunclen:
+            artist = artist[0:trunclen]
+            artist += '...' 
+            if ('(' in artist) and (')' not in artist):
+                artist += ')'
 
-    if len(song) > trunclen:
-        song = song[0:trunclen]
-        song += '...' 
-        if ('(' in song) and (')' not in song):
-            song += ')'
+        song = metadata['xesam:title']
 
-    if sys.version_info.major == 3:
-        output = output.format(artist=artist, song=song)
-    else:
-        output = output.format(artist=artist, song=song).encode('UTF-8')
-    percent = int((len(output) + 1) * percent)
-    output = '%{o#EA2202}%{+o}' + output[: percent] + '%{-o}' + output[percent:]
-    output = '%{F#EA2202} %{F-}' + output
-    output += '  '
+        if len(song) > trunclen:
+            song = song[0:trunclen]
+            song += '...' 
+            if ('(' in song) and (')' not in song):
+                song += ')'
 
-    output += '%{A1:dbus-send --print-reply --dest=org.mpris.MediaPlayer2.netease-cloud-music /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Previous:}    %{A}'
-    if playback_status == 'Playing':
-        output += '%{A1:dbus-send --print-reply --dest=org.mpris.MediaPlayer2.netease-cloud-music /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause:}    %{A}'
-    else:
-        output += '%{A1:dbus-send --print-reply --dest=org.mpris.MediaPlayer2.netease-cloud-music /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause:}    %{A}'
-    output += '%{A1:dbus-send --print-reply --dest=org.mpris.MediaPlayer2.netease-cloud-music /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next:}    %{A}'
-    print(output)
-    #  print('%{o#EA2202}%{+o}%{F#EA2202} %{F-}' + output + '%{o-}')
+        output = '{artist} : {song}'
+        if sys.version_info.major == 3:
+            output = output.format(artist=artist, song=song)
+        else:
+            output = output.format(artist=artist, song=song).encode('UTF-8')
+        percent = int((len(output) + 1) * percent)
+        output = '%{o#EA2202}%{+o}' + output[: percent] + '%{-o}' + output[percent:]
+        #  output = '%{F#EA2202} %{F-}' + output
+        output = '📻 ' + output
+        output += '  '
 
-except Exception as e:
-    if isinstance(e, dbus.exceptions.DBusException):
-        print('%{A1:i3-msg workspace number 7 Netease; netease-cloud-music:}%{F#EA2202} %{F-}打开网易云音乐 %{A}')
-    else:
-        print(e)
+        output += '%{A1:dbus-send --print-reply --dest=org.mpris.MediaPlayer2.netease-cloud-music /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Previous:}    %{A}'
+        if playback_status == 'Playing':
+            output += '%{A1:dbus-send --print-reply --dest=org.mpris.MediaPlayer2.netease-cloud-music /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause:}    %{A}'
+        else:
+            output += '%{A1:dbus-send --print-reply --dest=org.mpris.MediaPlayer2.netease-cloud-music /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause:}    %{A}'
+        #  output += '%{A1:dbus-send --print-reply --dest=org.mpris.MediaPlayer2.netease-cloud-music /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next:}    %{A}'
+        output += '%{A1:dbus-send --print-reply --dest=org.mpris.MediaPlayer2.netease-cloud-music /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next:}    %{A}'
 
+        print(output, flush=True)
+        #  print('%{o#EA2202}%{+o}%{F#EA2202} %{F-}' + output + '%{o-}')
+
+    except Exception as e:
+        if isinstance(e, dbus.exceptions.DBusException):
+            print('%{A1:i3-msg workspace number 7 Netease; netease-cloud-music:}%{F#EA2202} %{F-}打开网易云音乐 %{A}', flush=True)
+        else:
+            print(e, flush=True)
+    time.sleep(1)
