@@ -41,9 +41,9 @@ mydir = os.path.dirname(__file__)
 if mydir != '':
     os.chdir(mydir) # change the current working directory
 
+session_bus = dbus.SessionBus()
 def echo():
     try:
-        session_bus = dbus.SessionBus()
         cloud_music_bus = session_bus.get_object(
             'org.mpris.MediaPlayer2.netease-cloud-music',
             '/org/mpris/MediaPlayer2'
